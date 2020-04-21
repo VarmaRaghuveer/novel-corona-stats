@@ -8,45 +8,89 @@
 <body class="px-5">
 
     <header>
-        <%- include ("../partials/header")%>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+            <div class="row">
+                <div class="col">
+                    <a class="navbar-brand" href="#">Novel Corona / Covid-19 Stats</a>
+                </div>
+                <div class="col">
+                    <a class="nav-link text-white" href="/">India</a>
+                </div>
+                <div class="col">            
+                    <a class="nav-link font-weight-bold" href="/world">World</a>
+                </div>
+            </div>    
+        </nav>
     </header>
 
     <main>
-        <div class="jumbotron py-5">
-            <div class="col">
-                <div class="row">
-                    <div class="col">
-                        Confirmed: <br />
-                        <h5><span class="badge badge-pill badge-warning"><%= worldStats.cases %></span></h5>
+        <div class="col p-0">
+            <div class="row">
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Confirmed</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-warning">
+                                <%= worldStats.cases %>
+                            </h4>
+                        </div>
                     </div>
-                    <div class="col">
-                        Deaths: <br />
-                        <h5><span class="badge badge-pill badge-danger"><%= worldStats.deaths %></span></h5>
+                </div>
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Deaths</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-danger">
+                                <%= worldStats.deaths %>
+                            </h4>
+                        </div>
                     </div>
-                    <div class="col">
-                        Recovered: <br />
-                        <h5><span class="badge badge-pill badge-success"><%= worldStats.recovered %></span></h5>
+                </div>
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Recovered</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-success">
+                                <%= worldStats.recovered %>
+                            </h4>
+                        </div>
                     </div>
-                    <div class="col">
-                        Active: <br />
-                        <h5><span class="badge badge-pill badge-warning"><%= worldStats.active %></span></h5>
+                </div>
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Active</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-warning">
+                                <%= worldStats.active %>
+                            </h4>
+                        </div>
                     </div>
-                    <div class="col">
-                        Countries: <br />
-                        <h5><span class="badge badge-pill badge-info"><%= worldStats.affectedCountries %></span></h5>
+                </div>
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Countries</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-info">
+                                <%= worldStats.affectedCountries %>
+                            </h4>
+                        </div>
                     </div>
-                    <div class="col">
-                        Updated: <br />
-                        <h5><span
-                                class="badge badge-pill badge-info"><%= new Date(worldStats.updated).toString().substring(0,25) %></span>
-                        </h5>
+                </div>
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Updated</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-info">
+                                <%= new Date(worldStats.updated).toString().substring(3,10) %>
+                            </h4>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="myModal" class="modal" tabindex="-1" role="dialog">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 id="modalTitle" class="modal-title text-center"></h5>
@@ -55,7 +99,17 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <canvas id="myChart"></canvas>
+                        <div class="row">
+                            <canvas id="Confirm"></canvas>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <canvas id="Death"></canvas>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <canvas id="Recovered"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,7 +117,7 @@
 
         <div class="jumbotron py-5">
             <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for country..">
-            <h6 class="text-center text-info ">Click on row to see spread trend for that country</h6>
+            <h6 class="text-center text-info ">Click on country to see spread trend for it.</h6>
             <table id="myTable" class="table table-striped table-dark">
                 <thead>
                     <tr>
@@ -158,50 +212,23 @@
 
             document.getElementById('modalTitle').innerText = countryName;
             document.getElementById('modalTitle').style.textAlign = 'center';
-            chartBuilder(labels, confirmed, deaths, recovered);
-
-
+            chartBuilder('Confirm', labels, confirmed, 'rgba(240, 173, 78, 0.2)', 'rgba(240, 173, 78, 1)');
+            chartBuilder('Death', labels, deaths, 'rgba(217, 83, 79, 0.2)', 'rgba(217, 83, 79, 1)');
+            chartBuilder('Recovered', labels, recovered, 'rgba(92, 184, 92, 0.2)', 'rgba(92, 184, 92, 1)');
         }
 
-        function chartBuilder(labels, confirmed, deaths, recovered) {
-            return new Chart('myChart', {
-                type: 'line',
+        function chartBuilder(ChartName, labels, confirmed, bgColor, borderColor) {
+            return new Chart(ChartName, {
+                type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [{
-                            label: 'Confirm: ' + confirmed[confirmed.length - 1],
-                            data: confirmed,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)'
-                            ],
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'deaths: ' + deaths[deaths.length - 1],
-                            data: deaths,
-                            backgroundColor: [
-                                'rgba(139, 0, 0, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(139, 0, 0, 1)'
-                            ],
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'recovered: ' + recovered[recovered.length - 1],
-                            data: recovered,
-                            backgroundColor: [
-                                'rgba(0, 128, 0, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(0, 128, 0,  1)'
-                            ],
-                            borderWidth: 1
-                        }
-                    ]
+                        label: `${ChartName}: ` + confirmed[confirmed.length - 1],
+                        data: confirmed,
+                        backgroundColor: bgColor,
+                        borderColor: borderColor,
+                        borderWidth: 0
+                    }]
                 },
                 options: {
                     scales: {

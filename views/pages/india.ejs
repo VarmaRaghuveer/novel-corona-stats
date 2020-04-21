@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include ("../partials/head")%>
+</head>
+
+<body class="px-5">
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+            <div class="row">
+                <div class="col">
+                    <a class="navbar-brand" href="#">Novel Corona / Covid-19 Stats</a>
+                </div>
+                <div class="col">
+                    <a class="nav-link font-weight-bold" href="/">India</a>
+                </div>
+                <div class="col">            
+                    <a class="nav-link text-white" href="/world">World</a>
+                </div>
+            </div>    
+        </nav>
+    </header>
+
+    <main>
+        <div class="col p-0">
+            <div class="row">
+                <div class="col">
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Confirmed</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-warning">
+                                <%= IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].totalconfirmed %>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">                    
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Deaths</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-danger">
+                                <%= IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].totaldeceased %>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">                    
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Recovered</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-success">
+                                <%= IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].totalrecovered %>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">                    
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Active</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-warning">
+                                <%= (IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].totalconfirmed - (parseInt(IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].totalrecovered, 10) + parseInt(IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].totaldeceased))) %>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">                    
+                    <div class="card text-center bg-dark mb-3">
+                        <div class="card-header">Updated</div>
+                        <div class="card-body">
+                            <h4 class="card-title text-info">
+                                <%= IndiaCasesTimeSeries[IndiaCasesTimeSeries.length - 1].date %>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="myModal" class="modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-top modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="modalTitle" class="modal-title text-center"></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped table-dark">
+                            <thead>
+                                <tr>
+                                    <th scope="col">District</th>
+                                    <th scope="col">Confirmed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="jumbotron py-5">
+                    <input type="text" id="myInput" onkeyup="myFunction()" placeholder="Search for the state..">
+                    <h6 class="text-center text-info ">Click on state to see district wise stats for it.</h6>
+                    <table id="myTable" class="table table-striped table-dark">
+                        <thead>
+                            <tr>
+                                <th scope="col">State</th>
+                                <th scope="col">Confirmed</th>
+                                <th scope="col">Active</th>
+                                <th scope="col">Recovered</th>
+                                <th scope="col">Deaths</th>
+                            </tr>
+                        </thead>
+                        <tbody data-toggle="tooltip" data-placement="top" title="click on row to see spread trend">
+                            <% IndiaStateWise.forEach(state => { %>
+                            <% if(state.state !== 'Total') { %>
+                            <tr onclick="handleOnClick('<%= state.state %>')">
+                                <td><%= state.state %></td>
+                                <td class="text-warning"><%= state.confirmed %></td>
+                                <td class="text-warning"><%= state.active %></td>
+                                <td class="text-success"><%= state.recovered %></td>
+                                <td class="text-danger"><%= state.deaths %></td>
+                            </tr>
+                            <% } %>
+
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col">
+                <input type="hidden" id="hidden" value="<%=JSON.stringify(IndiaCasesTimeSeries)%>">
+                <input type="hidden" id="hidden1" value="<%=JSON.stringify(districtWise)%>">
+                <div class="row">
+                    <canvas id="Confirm"></canvas>
+                </div>
+                <hr />
+                <div class="row">
+                    <canvas id="Death"></canvas>
+                </div>
+                <hr />
+                <div class="row">
+                    <canvas id="Recovered"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <%- include ("../partials/footer")%>
+    </footer>
+
+    <script>
+        const modal = document.getElementById("myModal");
+        const span = document.getElementsByClassName("close")[0];
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.keyCode === 27) {
+                modal.style.display = "none";
+            }
+        })
+    </script>
+
+    <script>
+        let IndiaCasesTimeSeries = JSON.parse(document.getElementById('hidden').value);
+        let labels = IndiaCasesTimeSeries.map(l => l.date);
+        let confirmed = IndiaCasesTimeSeries.map(c => c.totalconfirmed);
+        let deaths = IndiaCasesTimeSeries.map(d => d.totaldeceased);
+        let recovered = IndiaCasesTimeSeries.map(r => r.totalrecovered);
+
+        chartBuilder('Confirm', labels, confirmed, 'rgba(240, 173, 78, 0.2)', 'rgba(240, 173, 78, 1)');
+        chartBuilder('Death', labels, deaths, 'rgba(217, 83, 79, 0.2)', 'rgba(217, 83, 79, 1)');
+        chartBuilder('Recovered', labels, recovered, 'rgba(92, 184, 92, 0.2)', 'rgba(92, 184, 92, 1)');
+
+        function chartBuilder(ChartName, labels, confirmed, bgColor, borderColor) {
+            return new Chart(ChartName, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${ChartName}: ` + confirmed[confirmed.length - 1],
+                        data: confirmed,
+                        backgroundColor: bgColor,
+                        borderColor: borderColor,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        }
+    </script>
+
+    <script>
+        function myFunction() {
+            // Declare variables
+            let input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("myTable");
+            tr = table.getElementsByTagName("tr");
+
+            console.log(filter)
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        };
+
+        async function handleOnClick(stateName) {
+
+            let districtWise = JSON.parse(document.getElementById('hidden1').value);
+            let districts = Object.keys(districtWise[stateName]['districtData']);
+            let confirmed = districts.map(d => districtWise[stateName]['districtData'][d]['confirmed']);
+
+            // Get the modal
+            const modal = document.getElementById("myModal");
+            modal.style.display = "block";
+
+            document.getElementById('modalTitle').innerText = stateName;
+            document.getElementById('modalTitle').style.textAlign = 'center';
+
+            tabBody = document.getElementById("modalTableBody");
+            tabBody.innerHTML = "";
+            districts.forEach((d, i) => {
+                row = document.createElement("tr");
+                cell1 = document.createElement("td");
+                cell2 = document.createElement("td");
+                textnode1 = document.createTextNode(d);
+                textnode2 = document.createTextNode(confirmed[i]);
+                cell1.appendChild(textnode1);
+                cell2.appendChild(textnode2);
+                row.appendChild(cell1);
+                row.appendChild(cell2).classList.add("text-warning");
+                tabBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+
+</html>
